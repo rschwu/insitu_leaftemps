@@ -1,0 +1,149 @@
+---
+title: "Leaf temperature recordings summer 2024"
+output:
+  html_document: default
+---
+
+
+
+```{r Knitr_setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE, 
+  message = FALSE,
+  error =FALSE,
+  fig.dim = c(8, 4)
+  )
+```
+
+```{r R_setup}
+rm(list=ls(all=TRUE))  #remove all objects (from other sessions)
+#library(zoo)
+ library(lubridate)
+ library(tidyverse)
+# #library(broom)
+# #library(timetk)
+library(plotly)
+library(RColorBrewer)
+ library(knitr)
+# #library(ggpubr)
+ library(vroom)
+# #library(plantecophys)
+Tl <- tibble()
+```
+
+```{r startEnd}
+#prepare start and end for plots:
+endTime <- now()
+startTime = now() - ddays(40)
+
+# create a start and end time R object
+start.end <- c(startTime,endTime)
+```
+
+
+```{r load_data}
+Tl <- vroom("RawData/Tl.csv") %>% 
+  # filter(
+  #   Tno <=15
+  # ) %>% 
+  mutate(
+    Tno = factor(Tno)
+  )
+
+```
+
+
+
+```{r graph_Avg}
+g <- Tl %>% 
+  filter(
+    Parameter == "Avg",
+    Value > 0
+  ) %>% 
+  drop_na(Value) %>% 
+  ggplot() +
+  geom_line(aes(x=TS,y=Value,color = Tno)) +
+  labs(title = "Average (10min) leaf temperature",
+       subtitle = "") +
+  scale_x_datetime(#limits=start.end,
+                   date_breaks = "1 week",
+                   date_labels = "%d.%m")+
+    ylab("")+
+  xlab("") +
+  facet_wrap(~species)
+
+x <- list(
+    title = "Date"
+)
+y <- list(
+    title = "leaf T (°C)"
+)
+
+ggplotly(g) %>% 
+  layout(xaxis = x, yaxis = y)
+
+```
+
+```{r graph_Max}
+g <- Tl %>% 
+  filter(
+    Parameter == "Max",
+    Value > 0
+  ) %>% 
+  drop_na(Value) %>% 
+  ggplot() +
+  geom_line(aes(x=TS,y=Value,color = Tno)) +
+  labs(title = "Maximum (10min) leaf temperature",
+       subtitle = "") +
+  scale_x_datetime(#limits=start.end,
+                   date_breaks = "1 week",
+                   date_labels = "%d.%m")+
+    ylab("")+
+  xlab("") +
+  facet_wrap(~species)
+
+x <- list(
+    title = "Date"
+)
+y <- list(
+    title = "leaf T (°C)"
+)
+
+ggplotly(g) %>% 
+  layout(xaxis = x, yaxis = y)
+
+```
+
+```{r graph_battery}
+g <- Tl %>% 
+  select(
+    TS,
+    battery,
+    species
+    ) %>% 
+  unique() %>% 
+  drop_na(battery) %>% 
+  ggplot() +
+  geom_line(aes(x=TS,y=battery)) +
+  geom_hline(yintercept = 11, color = "red") +
+  labs(title = "battery voltage",
+       subtitle = "") +
+  scale_x_datetime(#limits=start.end,
+                   date_breaks = "1 week",
+                   date_labels = "%d.%m")+
+    ylab("")+
+  xlab("") +
+  facet_wrap(~species)
+
+x <- list(
+    title = "Date"
+)
+y <- list(
+    title = "(V)"
+)
+
+ggplotly(g) %>% 
+  layout(xaxis = x, yaxis = y)
+
+```
