@@ -54,6 +54,49 @@ leaf_temps <- leaf_temps %>%
   mutate(newdate = make_date(year = year, month = month, day = day))
 
 
+leaf_temps %>% 
+  count(value, sort = TRUE)
+
+# baby graphs -------------------------------------------------------------
+#prepare start and end for plots:
+endTime <- now()
+startTime = now() - ddays(40)
+
+# create a start and end time R object
+start.end <- c(startTime,endTime)
+
+g <- leaf_temps %>% 
+  filter(
+    parameter == "Avg",
+    value > 0
+  ) %>% 
+  drop_na(value) %>% 
+  ggplot() +
+  geom_line(aes(x=ts,y=value,color = tno)) +
+  labs(title = "Average (10min) leaf temperature",
+       subtitle = "") +
+  scale_x_datetime(#limits=start.end,
+    date_breaks = "1 week",
+    date_labels = "%d.%m")+
+  ylab("")+
+  xlab("") +
+  facet_wrap(~species)
+
+
+# g_p <- 
+  leaf_temps %>% 
+  filter(parameter == "Avg", value > 0) %>% 
+  drop_na(value) %>% 
+  ggplot() +
+  geom_point(aes(x=ts,y=value,color = tno), alpha = 0.1) +
+  labs(title = "Average (10min) leaf temperature",
+       subtitle = "") +
+  scale_x_datetime(#limits=start.end,
+    date_breaks = "1 week",
+    date_labels = "%d.%m")+
+  ylab("")+
+  xlab("") +
+  facet_wrap(~species)
 
 # 4. tag and remove unusable data -----------------------------------------
 real_temps <- leaf_temps %>% 
