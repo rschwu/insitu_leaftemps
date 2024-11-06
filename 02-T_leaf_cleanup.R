@@ -52,8 +52,15 @@ extractdate <- function(date) {
 leaf_temps <- cbind(tleaf_clean, extractdate(tleaf_clean$ts))
 leaf_temps <- leaf_temps %>% 
   mutate(newdate = make_date(year = year, month = month, day = day))
-l_temps <- l_temp %>% 
-  #very quick assignment of useable values
+
+
+
+# 4. tag and remove unusable data -----------------------------------------
+real_temps <- leaf_temps %>% 
+  #very quick assignment of unuseable values
+  #maybe just tag everything that is detached as REMOVE
+  #everything that is air as AIR
+  #everything else as NEWLEAF or OLDLEAF?
   mutate(prev_touching = case_when( #ugh still not working despite making the
     # species == 'Beech' & newdate < '2024-07-11' & tno == '9' ~ 'detached',
     # species == 'Beech' & newdate < '2024-07-11' & tno == '21' ~ 'detached',
